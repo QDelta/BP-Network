@@ -5,7 +5,7 @@ SRCS=main.cpp
 EXE=main
 INCLUDES=$(shell pkg-config eigen3 --cflags)
 
-CXXFLAGS=-O2 -std=c++17
+CXXFLAGS=-O3 -std=c++17
 FLAGS=$(CXXFLAGS) $(INCLUDES)
 LIBS=
 

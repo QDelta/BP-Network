@@ -22,12 +22,17 @@ struct TrainerConfig {
 };
 
 class Trainer {
+private:
+    Loader trainLoader;
+    Loader testLoader;
+
+    NetConfig   nConf;
+    Network     net;
+    TrainBuffer trainBuf;
+
+    uint8_t labelOffset;
 public:
     void init(TrainerConfig config) {
-        // Initialize random generator
-        random_device rd;
-        randGen.seed(rd());
-
         // Load dataset
         trainLoader.load(config.trainDataPath, config.trainLabelPath, config.sampleFactor);
         testLoader.load(config.testDataPath, config.testLabelPath, config.sampleFactor);
@@ -78,9 +83,6 @@ public:
             trainBuf.reset();
 
             for (int i = 0; i < batchSize; ++i) {
-                // randomly pick a sample
-                sample = randGen() % dataSize;
-
                 rawToInput(rawData[sample], input);
                 accLabel = rawLabels[sample] - labelOffset;
 
@@ -89,6 +91,8 @@ public:
                 auto output = trainBuf.getOutput();
                 output.maxCoeff(&predLabel);
                 if (predLabel == accLabel) ++accTime;
+
+                sample = (sample + 1) % dataSize;
             }
 
             // Output message
@@ -160,17 +164,6 @@ private:
 
         return acc;
     }
-
-private:
-    Loader trainLoader;
-    Loader testLoader;
-
-    NetConfig   nConf;
-    Network     net;
-    TrainBuffer trainBuf;
-
-    uint8_t labelOffset;
-    mt19937 randGen;
 };
 
 }
